@@ -8,5 +8,5 @@ compiler.version=20
 os=Linux
 
 [buildenv]
-CC=/usr/sbin/clang
-CXX=/usr/sbin/clang++
+CC=/usr/bin/clang
+CXX=/usr/bin/clang++
