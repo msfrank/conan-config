@@ -1,9 +1,21 @@
 {
   "remotes": [
     {
-      "name": "conan.s10y.co",
-      "url": "https://conan.s10y.co",
+      "name": "integ",
+      "url": "https://conan.s10y.co/integ",
+      "verify_ssl": true,
+      "disabled": true
+    },
+    {
+      "name": "develop",
+      "url": "https://conan.s10y.co/develop",
       "verify_ssl": true
+    },
+    {
+      "name": "build",
+      "url": "https://conan.s10y.co/build",
+      "verify_ssl": true,
+      "disabled": true
     }
   ]
 }
