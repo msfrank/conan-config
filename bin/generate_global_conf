@@ -1,0 +1,76 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+from argparse import ArgumentParser
+
+parser = ArgumentParser(prog="generate_global_conf", description="generate Conan global.conf")
+parser.add_argument('--conan-home', default=None)
+parser.add_argument('--conan-interactive', action='store_true')
+parser.add_argument('storage_path')
+args = parser.parse_args()
+
+
+conan_home = os.environ.get('CONAN_HOME', None)
+if args.conan_home:
+    conan_home = args.conan_home
+if not conan_home:
+    print(f"could not determine conan home")
+    sys.exit(1)
+if not os.path.isdir(conan_home):
+    print(f"conan home directory {conan_home} does not exist")
+    sys.exit(1)
+
+client_crt = os.environ.get('CONAN_CLIENT_CRT')
+if not client_crt:
+    print(f"CONAN_CLIENT_CRT environment variable is missing")
+    sys.exit(1)
+
+client_key = os.environ.get('CONAN_CLIENT_KEY')
+if not client_key:
+    print(f"CONAN_CLIENT_KEY environment variable is missing")
+    sys.exit(1)
+
+credentials_json = os.environ.get('CONAN_CREDENTIALS_JSON')
+if not credentials_json:
+    print(f"CONAN_CREDENTIALS_JSON environment variable is missing")
+    sys.exit(1)
+
+#
+#
+#
+
+global_conf_path = os.path.join(conan_home, 'global.conf')
+client_crt_path = os.path.join(conan_home, 'client.crt')
+client_key_path = os.path.join(conan_home, 'client.key')
+credentials_json_path = os.path.join(conan_home, 'credentials.json')
+non_interactive = 'False' if args.conan_interactive else 'True'
+
+#
+#
+#
+
+# write the global.conf
+
+with open(global_conf_path, 'w') as f:
+    f.write(f"""
+core.cache:storage_path={args.storage_path}
+core:non_interactive = {non_interactive}
+core.net.http:client_cert=('{client_crt_path}', '{client_key_path}')
+""")
+
+# write client.crt
+
+with open(client_crt_path, 'w') as f:
+    f.write(client_crt)
+
+# write client.key
+
+with open(client_key_path, 'w') as f:
+    f.write(client_key)
+
+# write credentials.json
+
+with open(credentials_json_path, 'w') as f:
+    f.write(credentials_json)

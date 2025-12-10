@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+
+from argparse import ArgumentParser
+from getpass import getuser
+from platform import system as get_system_name
+from shutil import chown
+
+parser = ArgumentParser(prog="make_conan_storage", description="create the Conan storage directory")
+parser.add_argument('--system-root', default='/')
+parser.add_argument('--exists-ok', action='store_true')
+parser.add_argument('--owner', default=None)
+parser.add_argument('--group', default=None)
+parser.add_argument('--output-path', default=None)
+args = parser.parse_args()
+
+system_path_base = None
+relative_storage_path = None
+
+system_name = get_system_name()
+
+if system_name == 'Linux':
+    system_path_base = os.path.join(args.system_root, 'var')
+    relative_storage_path = 'conan_packages'
+elif system_name == 'Darwin':
+    system_path_base = os.path.join(args.system_root, 'private', 'var')
+    relative_storage_path = 'conan_packages'
+else:
+    print(f"unsupported system '{system_name}'")
+    sys.exit(1)
+
+#
+#
+#
+
+if not os.path.isdir(system_path_base):
+    print(f"system path base '{system_path_base}' does not exist")
+    sys.exit(1)
+
+storage_path = os.path.join(system_path_base, relative_storage_path)
+
+os.makedirs(storage_path, mode=0o755, exist_ok=args.exists_ok)
+
+if args.owner or args.group:
+    chown(storage_path, user=args.owner, group=args.group)
+
+#
+#
+#
+
+if args.output_path:
+    with open(args.output_path, 'w') as f:
+        f.write(storage_path)
+else:
+    print(storage_path)
