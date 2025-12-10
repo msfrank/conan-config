@@ -22,9 +22,9 @@ if not os.path.isdir(conan_home):
     print(f"conan home directory {conan_home} does not exist")
     sys.exit(1)
 
-client_crt = os.environ.get('CONAN_CLIENT_CRT')
+client_crt = os.environ.get('CONAN_CLIENT_CERT')
 if not client_crt:
-    print(f"CONAN_CLIENT_CRT environment variable is missing")
+    print(f"CONAN_CLIENT_CERT environment variable is missing")
     sys.exit(1)
 
 client_key = os.environ.get('CONAN_CLIENT_KEY')
