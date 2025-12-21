@@ -17,8 +17,9 @@ parser.add_argument('--conan-build-profile', default=None)
 parser.add_argument('--scan-cache', action='store_true')
 parser.add_argument('--package-refs-path', default='package-refs.json')
 parser.add_argument('--build-order-path', default='build-order.json')
+parser.add_argument('--requires', action='append', default=[])
+parser.add_argument('--recipe-path', default=None)
 parser.add_argument('--debug', action='store_true')
-parser.add_argument('requires', nargs='*')
 args = parser.parse_args()
 
 def run_conan(*cmd_args):
@@ -49,14 +50,23 @@ graph_args = ['graph', 'build-order', '--build=missing', '-f', 'json']
 
 requires_list = []
 
-for requires in args.requires:
-    requires_list.append(f"--requires={requires}")
-
-if args.scan_cache:
-    list_result = run_conan('list', '-c', '-f', 'json')
-    list_json = loads(list_result.stdout)
-    for requires,_ in list_json['Local Cache'].items():
+if args.recipe_path:
+    if args.scan_cache:
+        print(f"--scan-cache cannot be specified if --recipe-path is specified")
+        sys.exit(1)
+    if args.requires:
+        print(f"--requires cannot be specified if --recipe-path is specified")
+        sys.exit(1)
+    requires_list.append(args.recipe_path)
+else:
+    for requires in args.requires:
         requires_list.append(f"--requires={requires}")
+
+    if args.scan_cache:
+        list_result = run_conan('list', '-c', '-f', 'json')
+        list_json = loads(list_result.stdout)
+        for requires,_ in list_json['Local Cache'].items():
+            requires_list.append(f"--requires={requires}")
 
 if len(requires_list) == 0:
     print(f"no requirements found, aborting")
