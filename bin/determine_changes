@@ -15,6 +15,7 @@ parser.add_argument('--conan-home', default=None)
 parser.add_argument('--conan-profile', default=None)
 parser.add_argument('--conan-build-profile', default=None)
 parser.add_argument('--scan-cache', action='store_true')
+parser.add_argument('--skip-binaries', action='store_true')
 parser.add_argument('--package-refs-path', default='package-refs.json')
 parser.add_argument('--build-order-path', default='build-order.json')
 parser.add_argument('--requires', action='append', default=[])
@@ -47,6 +48,11 @@ def run_conan(*cmd_args):
 # construct the build order
 
 graph_args = ['graph', 'build-order', '--build=missing', '-f', 'json']
+
+if args.skip_binaries:
+    graph_args.append('--conf=tools.graph:skip_binaries=True')
+else:
+    graph_args.append('--conf=tools.graph:skip_binaries=False')
 
 requires_list = []
 
