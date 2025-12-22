@@ -72,29 +72,15 @@ for package_ref in package_refs_set:
     if not package_ref in source_refs:
         missing_refs.append(package_ref)
 
-package_refs_set.difference_update(missing_refs)
-
-# list revisions in the target remote
-
-list_target_args = ['list', '-cc', 'core:non_interactive=True', f"--remote={args.target_remote}", '-f', 'json', '*/*#*']
-list_target_result = run_conan(*list_target_args)
-list_target_json = loads(list_target_result.stdout)
-
-# check whether each package ref exists in the target remote
-
-target_refs = set()
-for package_id,node in list_target_json[args.target_remote].items():
-    for revision_id,_ in node['revisions'].items():
-        target_refs.add(f"{package_id}#{revision_id}")
-
-promotion_refs = []
-for package_ref in package_refs_set:
-    if not package_ref in target_refs:
-        promotion_refs.append(package_ref)
+if missing_refs:
+    print(f"missing package refs in '{args.source_remote}' remote:")
+    for missing_ref in missing_refs:
+        print(f"    {missing_ref}")
+    sys.exit(1)
 
 # copy promotion refs from source remote to target remote
 
-for package_ref in promotion_refs:
+for package_ref in package_refs_set:
     download_args = ['download', '-cc', 'core:non_interactive=True', f"--remote={args.source_remote}", '-f', 'json', package_ref]
     download_result = run_conan(*download_args)
     upload_args = ['upload', '-cc', 'core:non_interactive=True', f"--remote={args.target_remote}", '-f', 'json', package_ref]
