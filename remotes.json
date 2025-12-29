@@ -9,7 +9,8 @@
     {
       "name": "develop",
       "url": "https://conan.s10y.co/develop",
-      "verify_ssl": true
+      "verify_ssl": true,
+      "disabled": true
     },
     {
       "name": "build",
